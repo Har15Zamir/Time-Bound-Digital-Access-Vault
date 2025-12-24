@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Share Vault - Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Generate Share Link</h1>
+
+        <form id="shareForm" onsubmit="createShare(event)">
+            <label for="vaultSelect">Select Vault Item:</label>
+            <select id="vaultSelect" required>
+                <!-- Options -->
+            </select>
+
+            <input type="datetime-local" id="expires_at" required>
+            <input type="number" id="max_views" placeholder="Maximum Views" required>
+            <input type="password" id="sharePassword" placeholder="Optional Password">
+
+            <button type="submit">Generate Link</button>
+        </form>
+
+        <p id="shareMessage" class="error"></p>
+        <p id="shareLink" class="success"></p>
+
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadVaultOptions() {
+            const owner_id = getUserId();
+            const res = await fetch(`${BASE_URL}/vault?owner_id=${owner_id}`);
+            const items = await res.json();
+            const select = document.getElementById("vaultSelect");
+            select.innerHTML = "";
+            items.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item[0];
+                option.text = item[1];
+                select.add(option);
+            });
+        }
+
+        async function createShare(event) {
+            event.preventDefault();
+            const vault_id = document.getElementById("vaultSelect").value;
+            const expires_at = document.getElementById("expires_at").value;
+            const max_views = document.getElementById("max_views").value;
+            const password = document.getElementById("sharePassword").value;
+
+            const res = await fetch(`${BASE_URL}/vault/${vault_id}/share`, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getToken()}`
+                },
+                body: JSON.stringify({ expires_at, max_views, password })
+            });
+
+            const data = await res.json();
+            if (res.status === 201) {
+                document.getElementById("shareMessage").textContent = "";
+                document.getElementById("shareLink").textContent = `${BASE_URL}/share/${data.share_token}`;
+            } else {
+                document.getElementById("shareMessage").textContent = data.error;
+            }
+        }
+
+        loadVaultOptions();
+    </script>
+</body>
+</html>

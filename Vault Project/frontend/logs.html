@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Logs - Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Vault Access Logs</h1>
+
+        <label for="vaultSelect">Select Vault Item:</label>
+        <select id="vaultSelect" onchange="loadLogs()" required>
+            <!-- Vault options -->
+        </select>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Outcome</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <!-- Logs -->
+            </tbody>
+        </table>
+
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadVaultOptions() {
+            const owner_id = getUserId();
+            const res = await fetch(`${BASE_URL}/vault?owner_id=${owner_id}`);
+            const items = await res.json();
+            const select = document.getElementById("vaultSelect");
+            select.innerHTML = "";
+            items.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item[0];
+                option.text = item[1];
+                select.add(option);
+            });
+            if (items.length > 0) {
+                loadLogs();
+            }
+        }
+
+        async function loadLogs() {
+            const vault_id = document.getElementById("vaultSelect").value;
+            const res = await fetch(`${BASE_URL}/vault/${vault_id}/logs`, {
+                headers: { "Authorization": `Bearer ${getToken()}` }
+            });
+            const logs = await res.json();
+            const tableBody = document.getElementById("logsTableBody");
+            tableBody.innerHTML = "";
+            logs.forEach(log => {
+                const row = `<tr>
+                    <td>${log.timestamp}</td>
+                    <td>${log.outcome}</td>
+                    <td>${log.source}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        loadVaultOptions();
+    </script>
+</body>
+</html>

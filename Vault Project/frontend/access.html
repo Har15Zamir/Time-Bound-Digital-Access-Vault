@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Vault - Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Access Vault</h1>
+
+        <form id="accessForm" onsubmit="accessVault(event)">
+            <input type="text" id="token" placeholder="Enter Share Token" required>
+            <input type="password" id="accessPassword" placeholder="Password (if required)">
+            <button type="submit">Access</button>
+        </form>
+
+        <p id="accessMessage" class="error"></p>
+        <div id="vaultContent" style="white-space: pre-wrap; margin-top: 15px;"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function accessVault(event) {
+            event.preventDefault();
+            const token = document.getElementById("token").value;
+            const password = document.getElementById("accessPassword").value;
+
+            const res = await fetch(`${BASE_URL}/share/${token}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password })
+            });
+
+            const data = await res.json();
+            if (res.status === 200) {
+                document.getElementById("accessMessage").textContent = "";
+                document.getElementById("vaultContent").textContent = data.content;
+            } else {
+                document.getElementById("vaultContent").textContent = "";
+                document.getElementById("accessMessage").textContent = data.error;
+            }
+        }
+    </script>
+</body>
+</html>

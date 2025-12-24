@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Vaults</h1>
+        <button onclick="window.location.href='create_vault.html'">Create New Vault</button>
+        <button onclick="logout()">Logout</button>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody id="vaultTableBody">
+            </tbody>
+        </table>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        listVaults();
+    </script>
+</body>
+</html>
